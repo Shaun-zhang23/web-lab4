@@ -1,0 +1,58 @@
+{
+  "users": [
+    {
+      "firstName": "Alice",
+      "lastName": "Johnson",
+      "email": "alice.johnson@example.com",
+      "dateOfBirth": "1998-04-12",
+      "preferences": {
+        "theme": "dark",
+        "language": "English",
+        "notifications": true,
+        "subscription": true
+      },
+      "address": {
+        "street": "123 Maple Street",
+        "city": "Portland",
+        "state": "Oregon",
+        "zipCode": "97205"
+      }
+    },
+    {
+      "firstName": "Bob",
+      "lastName": "Smith",
+      "email": "bob.smith@example.com",
+      "dateOfBirth": "1995-09-03",
+      "preferences": {
+        "theme": "light",
+        "language": "Chinese",
+        "notifications": false,
+        "subscription": false
+      },
+      "address": {
+        "street": "456 Oak Avenue",
+        "city": "Austin",
+        "state": "Texas",
+        "zipCode": "73301"
+      }
+    },
+    {
+      "firstName": "Carol",
+      "lastName": "Martinez",
+      "email": "carol.martinez@example.com",
+      "dateOfBirth": "2000-01-27",
+      "preferences": {
+        "theme": "system",
+        "language": "Spanish",
+        "notifications": true,
+        "subscription": false
+      },
+      "address": {
+        "street": "789 Pine Road",
+        "city": "Miami",
+        "state": "Florida",
+        "zipCode": "33101"
+      }
+    }
+  ]
+}

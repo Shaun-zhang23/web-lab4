@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML Lab - Book Catalogue</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f0f4f8;
+            color: #1a365d;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 32px;
+        }
+        .nav { text-align: center; margin-bottom: 24px; }
+        .nav a {
+            color: #2b6cb0;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav a:hover { text-decoration: underline; }
+        .book-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+        .book-card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-top: 4px solid #2b6cb0;
+            transition: transform 0.15s ease;
+        }
+        .book-card:hover { transform: translateY(-3px); }
+        .book-id {
+            display: inline-block;
+            background: #2b6cb0;
+            color: #ffffff;
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        .book-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+        .book-author { color: #4a5568; margin-bottom: 12px; }
+        .book-price { font-size: 1.25rem; font-weight: 700; color: #2f855a; }
+        .error {
+            text-align: center;
+            color: #c53030;
+            font-weight: 600;
+            padding: 20px;
+        }
+        .loading { text-align: center; color: #4a5568; padding: 40px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Book Catalogue</h1>
+        <p class="subtitle">XML Lab - data loaded from book.xml</p>
+        <p class="nav"><a href="profiles.html">Go to JSON Lab: User Profiles &rarr;</a></p>
+        <div id="output" class="loading">Loading books...</div>
+    </div>
+
+    <script>
+        fetch('book.xml')
+            .then(response => {
+                if (!response.ok)
+                    throw new Error('Fetch error: ' + response.status);
+                else
+                    return response.text();
+            })
+            .then(xmlText => {
+                // Parse the XML string using DOMParser
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+
+                // Detect parse errors (malformed XML)
+                const parseError = xmlDoc.querySelector('parsererror');
+                if (parseError)
+                    throw new Error('XML parse error: ' + parseError.textContent);
+
+                const output = document.getElementById('output');
+                output.innerHTML = '';
+                output.className = 'book-list';
+
+                const books = xmlDoc.getElementsByTagName('book');
+                if (books.length === 0) {
+                    output.className = 'error';
+                    output.textContent = 'No books found in book.xml';
+                    return;
+                }
+
+                for (let i = 0; i < books.length; i++) {
+                    const book = books[i];
+                    const id = book.getAttribute('id');
+                    const title = book.getElementsByTagName('title')[0].textContent;
+                    const author = book.getElementsByTagName('author')[0].textContent;
+                    const price = book.getElementsByTagName('price')[0].textContent;
+
+                    const card = document.createElement('div');
+                    card.className = 'book-card';
+                    card.innerHTML =
+                        '<span class="book-id">ID: ' + id + '</span>' +
+                        '<div class="book-title"></div>' +
+                        '<div class="book-author">by </div>' +
+                        '<div class="book-price">$' + price + '</div>';
+
+                    // Use textContent to avoid HTML injection from XML data
+                    card.querySelector('.book-title').textContent = title;
+                    card.querySelector('.book-author').textContent = 'by ' + author;
+
+                    output.appendChild(card);
+                }
+            })
+            .catch(err => {
+                const output = document.getElementById('output');
+                output.className = 'error';
+                output.textContent = err.message;
+                console.error('Fetch error: ' + err.message);
+            });
+    </script>
+</body>
+</html>

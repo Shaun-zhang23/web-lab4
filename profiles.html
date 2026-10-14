@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Lab - User Profiles</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f0f4f8;
+            color: #1a365d;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 32px;
+        }
+        .nav { text-align: center; margin-bottom: 24px; }
+        .nav a {
+            color: #2b6cb0;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav a:hover { text-decoration: underline; }
+        .profile-card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid #2f855a;
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #2f855a;
+            color: #ffffff;
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .profile-name { font-size: 1.25rem; font-weight: 700; }
+        .profile-email { color: #2b6cb0; font-size: 0.9rem; }
+        .details { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+        .detail-item {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+        .detail-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #718096;
+            margin-bottom: 2px;
+        }
+        .detail-value { font-weight: 600; font-size: 0.95rem; }
+        .tag {
+            display: inline-block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 12px;
+        }
+        .tag-yes { background: #c6f6d5; color: #22543d; }
+        .tag-no { background: #fed7d7; color: #742a2a; }
+        .error {
+            text-align: center;
+            color: #c53030;
+            font-weight: 600;
+            padding: 20px;
+        }
+        .loading { text-align: center; color: #4a5568; padding: 40px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Profiles</h1>
+        <p class="subtitle">JSON Lab - data loaded from userProfiles.json</p>
+        <p class="nav"><a href="index.html">&larr; Go to XML Lab: Book Catalogue</a></p>
+        <div id="output" class="loading">Loading user profiles...</div>
+    </div>
+
+    <script>
+        fetch('userProfiles.json')
+            .then(response => {
+                if (!response.ok)
+                    throw new Error('Fetch error: ' + response.status)
+                else
+                    return response.json();
+            })
+            .then(json => {
+                const output = document.getElementById('output');
+                output.innerHTML = '';
+
+                const users = json.users;
+                if (!users || users.length === 0) {
+                    output.className = 'error';
+                    output.textContent = 'No user profiles found in userProfiles.json';
+                    return;
+                }
+
+                users.forEach(user => {
+                    const initials = user.firstName.charAt(0) + user.lastName.charAt(0);
+                    const prefs = user.preferences || {};
+                    const address = user.address || {};
+
+                    const card = document.createElement('div');
+                    card.className = 'profile-card';
+
+                    const yesNo = value =>
+                        '<span class="tag ' + (value ? 'tag-yes' : 'tag-no') + '">' +
+                        (value ? 'Yes' : 'No') + '</span>';
+
+                    const header = document.createElement('div');
+                    header.className = 'profile-header';
+                    const avatar = document.createElement('div');
+                    avatar.className = 'avatar';
+                    avatar.textContent = initials;
+                    const nameWrap = document.createElement('div');
+                    const name = document.createElement('div');
+                    name.className = 'profile-name';
+                    name.textContent = user.firstName + ' ' + user.lastName;
+                    const email = document.createElement('div');
+                    email.className = 'profile-email';
+                    email.textContent = user.email;
+                    nameWrap.appendChild(name);
+                    nameWrap.appendChild(email);
+                    header.appendChild(avatar);
+                    header.appendChild(nameWrap);
+                    card.appendChild(header);
+
+                    const details = document.createElement('div');
+                    details.className = 'details';
+                    details.innerHTML =
+                        '<div class="detail-item"><div class="detail-label">Date of Birth</div>' +
+                        '<div class="detail-value"></div></div>' +
+                        '<div class="detail-item"><div class="detail-label">Address</div>' +
+                        '<div class="detail-value"></div></div>' +
+                        '<div class="detail-item"><div class="detail-label">Theme</div>' +
+                        '<div class="detail-value"></div></div>' +
+                        '<div class="detail-item"><div class="detail-label">Language</div>' +
+                        '<div class="detail-value"></div></div>' +
+                        '<div class="detail-item"><div class="detail-label">Notifications</div>' +
+                        '<div class="detail-value">' + yesNo(prefs.notifications) + '</div></div>' +
+                        '<div class="detail-item"><div class="detail-label">Newsletter Subscription</div>' +
+                        '<div class="detail-value">' + yesNo(prefs.subscription) + '</div></div>';
+
+                    const values = details.querySelectorAll('.detail-value');
+                    values[0].textContent = user.dateOfBirth;
+                    values[1].textContent = [address.street, address.city, address.state, address.zipCode]
+                        .filter(Boolean).join(', ');
+                    values[2].textContent = prefs.theme;
+                    values[3].textContent = prefs.language;
+
+                    card.appendChild(details);
+                    output.appendChild(card);
+                });
+            })
+            .catch(err => {
+                const output = document.getElementById('output');
+                output.className = 'error';
+                output.textContent = err.message;
+                console.error('Fetch error: ' + err.message);
+            });
+    </script>
+</body>
+</html>
